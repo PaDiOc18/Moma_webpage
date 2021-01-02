@@ -8,7 +8,6 @@ class buscarhistorialpaci extends Component {
     
     state = {
         tipopeticion: 0,
-        displays:['none','none','none'],
         pacientes: [],
         datospost: {
             id: null,
@@ -17,7 +16,74 @@ class buscarhistorialpaci extends Component {
             fechaInicio: new Date(),
             fechaFinal: new Date()
         },
-        columnDefs: [{
+        paginationPageSize: 10
+    }
+
+    componentDidMount(){
+        fetch('http://localhost:4000/pacientes/')
+        .then(response => response.json())
+        .then(response => 
+        this.setState({pacientes: response.pacientes}))
+        .catch(err => console.error(err));
+    }
+
+    modify_inputs = (event) =>{ 
+        switch (event.target.value) {    
+            case 'nomapell':
+                this.setState({tipopeticion: 1});
+                break;
+    
+            case 'clave':
+                this.setState({tipopeticion: 2});
+                break;
+    
+            case 'fecha':
+                this.setState({tipopeticion: 3});
+                break;
+    
+            default:
+                alert('Favor de Seleccionar una opcion')
+                break;
+        }
+    }
+
+    PeticionBusqueda = (e) => {
+        e.preventDefault();
+        console.log(this.state.datospost);
+        axios({
+            method: 'post',
+            url: 'http://localhost:4000/pacientes/consultapaciente',
+            data: {
+                datospost: this.state.datospost,
+                tipopeticion: this.state.tipopeticion
+            }
+            }).then(res => {
+              this.setState({pacientes: res.data.pacientes});
+        });
+    }
+
+    MandarEditarEliminar = (row) => {
+        if(this.props.give_id !== undefined){
+            this.props.give_id(row.data.idpaciente)
+        }
+        else{
+            axios({
+                method: 'get',
+                url: 'http://localhost:4000/pacientes/todainformacionpaciente?idpaciente=' + row.data.idpaciente
+                }).then(res => {
+                  this.props.history.push({
+                    pathname: "/modificarpaciente",
+                    data: {
+                        ...res.data.paciente[0]
+                    } 
+                });
+            });
+        }
+    }
+
+    render() {
+        let { datospost} = this.state
+        const columnDefs = [{
             headerName: "Id Paciente", field: "idpaciente",sortable: true, filter: true
         }, {
             headerName: "Nombre", field: "nombre",sortable: true, filter: true
@@ -49,90 +115,60 @@ class buscarhistorialpaci extends Component {
             headerName: "Nacionalidad", field: "nacionalidad",sortable: true, filter: true
         },{
             headerName: "Observaciones", field: "observaciones",sortable: true, filter: true
-        }],
-        paginationPageSize: 10
-    }
+        }]
 
-    componentDidMount(){
-        fetch('http://localhost:4000/pacientes/')
-        .then(response => response.json())
-        .then(response => 
-        this.setState({pacientes: response.pacientes}))
-        .catch(err => console.error(err));
-    }
-
-    modify_inputs = (event) =>{ 
-        let displaysCopy = ['none','none','none']
-        switch (event.target.value) {    
-            case 'nomapell':
-                displaysCopy[0] = 'block';
-                this.setState({tipopeticion: 1}, () =>{
-                    this.setState({ //Usamos doble setState para asegurar que se seleccione el tipo de peticición
-                        displays: displaysCopy
-                    });
-                });
-                break;
-    
-            case 'clave':
-                displaysCopy[1] = 'block';
-                this.setState({tipopeticion: 2}, () =>{
-                    this.setState({
-                        displays: displaysCopy
-                    });
-                });
-                break;
-    
-            case 'fecha':
-                displaysCopy[2] = 'block';
-                this.setState({tipopeticion: 3}, () =>{
-                    this.setState({
-                        displays: displaysCopy
-                    });
-                });
-                break;
-    
-            default:
-                alert('Favor de Seleccionar una opcion')
-                break;
-        }
-    }
-
-    PeticionBusqueda = (e) => {
-        e.preventDefault();
-        console.log(this.state.datospost);
-        axios({
-            method: 'post',
-            url: 'http://localhost:4000/pacientes/consultapaciente',
-            data: {
-                datospost: this.state.datospost,
-                tipopeticion: this.state.tipopeticion
+        const conditional_input_Boxes = () =>{
+            if(this.state.tipopeticion === 1){
+              return <Fragment>
+                        <form autoComplete="off" className="col-sm" onSubmit={this.PeticionBusqueda}>
+                            <div className="col">
+                                <label htmlFor="nombre">Ingresa Nombre:</label>
+                                <input type="text" className="form-control" id="nombre" placeholder="Nombre" onChange={ e => this.setState({datospost: {...datospost, nombre: e.target.value}})}/>
+                            </div>
+                            <div className="col mt-2" >
+                                <label htmlFor="apellido">Ingresa Apellido:</label>
+                                <input type="text" className="form-control" id="apellido" placeholder="Apellido" onChange={ e => this.setState({datospost: {...datospost, apellido: e.target.value}})}/>
+                            </div>
+                            <button type = "submit" className="btn btn-primary mt-3 mr-3" style={{float: 'right'}}>Buscar</button>
+                        </form>
+                    </Fragment>
+            } 
+            else if(this.state.tipopeticion === 2){
+              return <Fragment>
+                        <form autoComplete="off" className="col-sm" onSubmit={this.PeticionBusqueda}>
+                            <div className="col">
+                                <label htmlFor="clave">Ingresa ID:</label>
+                                <input type="text" className="form-control" id="clave" pattern="[0-9]+" placeholder="ID" onChange = { e => this.setState({datospost:{...datospost, id: e.target.value }})} />
+                            </div>
+                            <button type = "submit" className="btn btn-primary mt-3 mr-3" style={{float: 'right'}}>Buscar</button>
+                        </form>
+                    </Fragment>
             }
-            }).then(res => {
-              this.setState({pacientes: res.data.pacientes});
-        });
-    }
+            else if(this.state.tipopeticion === 3){
+                return <Fragment>
+                        <form autoComplete="off" className="col-sm" onSubmit={this.PeticionBusqueda}>
+                            <div className="col" >
+                                <label htmlFor="fechainicio">Ingresa Fecha Inicio:</label>
+                                <input type="date" className="form-control" id="fechainicio" placeholder="Fecha Inicio" onChange={e => this.setState({datospost: {...datospost, fechaInicio: e.target.value}})}/>
+                            </div>
+                            <div className="col mt-2">
+                                <label htmlFor="fechafinal">Ingresa Fecha Final:</label>
+                                <input type="date" className="form-control" id="fechafinal" placeholder="Fecha Final" onChange={e => this.setState({datospost: {...datospost, fechaFinal: e.target.value}})}/>
+                            </div>
+                            <button type = "submit" className="btn btn-primary mt-3 mr-3" style={{float: 'right'}}>Buscar</button>
+                        </form>
+                    </Fragment>
+            }
+            else{
+                return <div></div>
+            }
+        }
 
-    MandarEditarEliminar = (row) => {
-        axios({
-            method: 'get',
-            url: 'http://localhost:4000/pacientes/todainformacionpaciente?idpaciente=' + row.data.idpaciente
-            }).then(res => {
-              this.props.history.push({
-                pathname: "/modificarpaciente",
-                data: {
-                    ...res.data.paciente[0]
-                } 
-            });
-        });
-    }
-
-    render() {
-        let { datospost, displays} = this.state;
         return (
             <Fragment>
                 <div className="container-fluid">
-                    <h2>Modificar/Eliminar</h2>
-                    <div className="row">
+                    <h2 className='text-center pt-2'>Buscar paciente</h2>
+                    <div className='row mr-3 ml-3 mb-2'>
                         <div className="col-sm">
                             <label htmlFor="buscapor">Buscar por:</label>
                             <select id="buscapor" className="form-control" onChange={this.modify_inputs}>
@@ -141,64 +177,22 @@ class buscarhistorialpaci extends Component {
                                 <option value='clave'>Clave</option>
                                 <option value='fecha'>Fecha</option>
                             </select>
-                        </div>                    
-                        <Fragment>
-                            <form style={{display: displays[0]}} className="col-sm" onSubmit={this.PeticionBusqueda}>
-                                <div className="col">
-                                    <label htmlFor="nombre">Ingresa Nombre:</label>
-                                    <input type="text" className="form-control" id="nombre" placeholder="Nombre" onChange={ e => this.setState({datospost: {...datospost, nombre: e.target.value}})}/>
-                                </div>
-                                <div className="col" >
-                                    <label htmlFor="apellido">Ingresa Apellido:</label>
-                                    <input type="text" className="form-control" id="apellido" placeholder="Apellido" onChange={ e => this.setState({datospost: {...datospost, apellido: e.target.value}})}/>
-                                </div>
-                                <br/>
-                                <div className='text-center'>
-                                    <button type = "submit"  className="btn btn-primary">Buscar</button>
-                                </div>
-                            </form>
-                        </Fragment>
-                        <Fragment>
-                            <form style={{display: displays[1]}} className="col-sm" onSubmit={this.PeticionBusqueda}>
-                                <div className="col">
-                                    <label htmlFor="clave">Ingresa ID:</label>
-                                    <input type="text" className="form-control" id="clave" pattern="[0-9]+" placeholder="ID" onChange = { e => this.setState({datospost:{...datospost, id: e.target.value }})} />
-                                </div>
-                                <br/>
-                                <div className='text-center'>
-                                    <button type = "submit" className="btn btn-primary">Buscar</button>
-                                </div>
-                            </form>
-                        </Fragment>
-                        <Fragment>
-                            <form style={{display: displays[2]}} className="col-sm" onSubmit={this.PeticionBusqueda}>
-                                <div className="col-sm" >
-                                    <label htmlFor="fechainicio">Ingresa Fecha Inicio:</label>
-                                    <input type="date" className="form-control" id="fechainicio" placeholder="Fecha Inicio" onChange={e => this.setState({datospost: {...datospost, fechaInicio: e.target.value}})}/>
-                                </div>
-                                <div className="col-sm" style={{display: displays[2]}}>
-                                    <label htmlFor="fechafinal">Ingresa Fecha Final:</label>
-                                    <input type="date" className="form-control" id="fechafinal" placeholder="Fecha Final" onChange={e => this.setState({datospost: {...datospost, fechaFinal: e.target.value}})}/>
-                                </div>
-                                <br/>
-                                <div className='text-center'>
-                                    <button type = "submit"  className="btn btn-primary">Buscar</button>
-                                </div>
-                            </form>
-                        </Fragment>
+                        </div>              
                     </div>
+                    { conditional_input_Boxes() }      
                 </div>
                   
                 <br/>
-                <div style={{ height: '500px', width: '100%' }} className="ag-theme-alpine">
+                <div style={{ height: '500px', margin: '3rem'}} className="ag-theme-alpine" >
                     <AgGridReact
-                        columnDefs={this.state.columnDefs}
+                        columnDefs={columnDefs}
                         rowData={this.state.pacientes}
                         pagination={true}
                         paginationPageSize={this.state.paginationPageSize}
                         onRowDoubleClicked={this.MandarEditarEliminar}
                         enableCellTextSelection={true}
-                        suppressCopyRowsToClipboard = {true}>
+                        suppressCopyRowsToClipboard = {true}
+                        checkboxSelection>
                     </AgGridReact>
                 </div>
             </Fragment>

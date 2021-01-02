@@ -23,7 +23,7 @@ export const SidebarData = [
             },
             {
                 title: 'Consultar historial',
-                path: '/agregarpaciente',
+                path: '/historialpaciente',
                 icon: <BootstrapIcons.BsClipboard/>
             }
         ]
@@ -34,6 +34,16 @@ export const SidebarData = [
         iconClosed: <RiIcons.RiArrowDownSFill/>,
         iconOpened: <RiIcons.RiArrowUpSFill/>,
         subNav:[
+            {
+                title: 'ver',
+                path: '/citas',
+                icon: <BootstrapIcons.BsPersonPlusFill/>
+            },
+            {
+                title: 'Buscar',
+                path: '/agregarconsulta',
+                icon: <BootstrapIcons.BsPersonPlusFill/>
+            },
             {
                 title: 'Agregar',
                 path: '/agregarconsulta',

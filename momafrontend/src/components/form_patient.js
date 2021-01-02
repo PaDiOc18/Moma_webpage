@@ -469,9 +469,15 @@ class formularioPaciente extends Component {
 
             <div className='row'>
               { this.props.functionality === 'add'
-              ? <Fragment><div className='col'><button type="submit" style={{float: 'right'}} className="btn btn-success">Agregar Paciente</button></div></Fragment>
-              : <Fragment><div className='col'><button id='modify' type="submit" onClick={ e => this.update_action(e.target.id)} className="btn btn-warning">Guardar Cambios</button></div>
-                <div className='col'><button id='erase' type="submit" onClick={e => this.update_action(e.target.id)} className="btn btn-danger">Eliminar Paciente</button></div></Fragment>
+              ? <Fragment><div className='col'>
+                            <button type="submit" style={{float: 'right'}} className="btn btn-success">Agregar Paciente</button>
+                            </div>
+                </Fragment>
+              : <Fragment><div className='col'>
+                            <button id='modify' style={{float: 'right', marginLeft: '3rem'}} type="submit" onClick={ e => this.update_action(e.target.id)} className="btn btn-warning">Guardar Cambios</button>
+                            <button id='erase' style={{float: 'right'}} type="submit" onClick={e => this.update_action(e.target.id)} className="btn btn-danger">Eliminar Paciente</button>
+                          </div>
+                </Fragment>
               }
             </div>
           </form>

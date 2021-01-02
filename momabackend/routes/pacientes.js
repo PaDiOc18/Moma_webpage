@@ -13,11 +13,7 @@ const connection =  mysql.createConnection({
 
 router.use(cors());
 router.use(bodyParser.json());
-router.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-)
+router.use(bodyParser.urlencoded({extended: true}))
 
 function convert_date_good_looking(ugly_date){
     return ugly_date.toISOString().split('T')[0];
@@ -274,8 +270,10 @@ router.post('/consultapaciente', (req, res) => {
                     res.send(err);
                 }
                 else{
-                    result[0].fechanac = convert_date_good_looking(result[0].fechanac)
-                    result[0].fechaAltaPaciente = convert_date_good_looking(result[0].fechaAltaPaciente)
+                    for (let i = 0; i < result.length; i++) {
+                        result[i].fechanac = convert_date_good_looking(result[i].fechanac)
+                        result[i].fechaAltaPaciente = convert_date_good_looking(result[i].fechaAltaPaciente)
+                    }
                     res.json({
                         pacientes: result
                     });
