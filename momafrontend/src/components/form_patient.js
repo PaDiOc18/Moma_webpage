@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 
 class formularioPaciente extends Component {
-
+  
     state = {
       paciente: {
         nombre: '', 
@@ -44,13 +44,13 @@ class formularioPaciente extends Component {
         this.show_notnull_inputs(this.props.datosEnviados);
         this.setState({
           paciente:{
-            ...this.props.datosEnviados
+            ...this.props.datosEnviados.paciente
           },
           direccion:{
-            ...this.props.datosEnviados
+            ...this.props.datosEnviados.direccion
           },
           prehistorial:{
-            ...this.props.datosEnviados
+            ...this.props.datosEnviados.prehistorial
           }
           }, () => {
             this.select_checkboxes();

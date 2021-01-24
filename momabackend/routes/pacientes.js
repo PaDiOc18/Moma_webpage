@@ -88,12 +88,15 @@ router.post('/agregar',(req,res) => {
 router.post('/modificar',(req,res)=>{
     const {paciente, prehistorial, direccion} = req.body;
 
+
+    console.log(req.body.paciente)
+
     connection.beginTransaction((err) => {
         if(err){
             res.send('Hubo un error en la transaccion');
         }
 
-        const modificar_paciente = "update clientes set nombre='" + paciente.nombre + "', " +
+        const modificar_paciente = "update paciente set nombre='" + paciente.nombre + "', " +
         "apellidop='" + paciente.apellidop +"', " +
         "apellidom='" + paciente.apellidom +"', " +
         "fechanac='" + paciente.fechanac.split('T')[0] +"', " +
@@ -110,7 +113,7 @@ router.post('/modificar',(req,res)=>{
         "colonia='" + direccion.colonia + "', " +
         "cp=" + direccion.cp + ", " +
         "municipio='" + direccion.municipio + "', " +
-        "estado='" + direccion.estado + "', " +
+        "estado='" + direccion.estado + "' " +
         "where id_paciente=" + paciente.idpaciente + ";";
 
         let cadenaEnfermedades = prehistorial.enfTenidas.toString();
@@ -124,27 +127,27 @@ router.post('/modificar',(req,res)=>{
         "OtraEnfTenidas='" + prehistorial.OtraEnfTenidas + "', " +
         "medTomadasActu='" + prehistorial.medTomadasActu + "', " +
         "ultimaConsulta='" + prehistorial.ultimaConsulta + "', " +
-        "motivoConsulta='" + prehistorial.motivoConsulta + "', " +
+        "motivoConsulta='" + prehistorial.motivoConsulta + "' " +
         "where id_paciente=" + paciente.idpaciente + ";";
 
         connection.query(modificar_paciente, (err,results) =>{
             if(err){
                 connection.rollback(() => {
-                    res.send('Error en modificar paciente');
+                    res.send(err);
                 });
             }
 
         connection.query(modificar_direccion, (err,results) => {
             if(err){
                 connection.rollback(() => {
-                    res.send('Error en modificar direccion');
+                    res.send(err);
                 });
             }
 
         connection.query(modificar_prehistorial, (err,results) =>{
             if(err){
                 connection.rollback(() => {
-                    res.send('Error en modificar prehistorial');
+                    res.send(err);
                 });
             }
         connection.commit((err) => {
@@ -161,13 +164,14 @@ router.post('/modificar',(req,res)=>{
     });
 });
 
-router.get('/eliminar', (req, res) => {
-    const { idpaciente } = req.query;
-    if(idpaciente == null){
+router.delete('/eliminar', (req, res) => {
+    const { idpaciente } = req.body;
+
+    if(idpaciente == null || idpaciente == undefined){
         res.send('ID de paciente nulo')
     }
     else{
-        const eliminar = 'delete from clientes where idpaciente= ' + idpaciente + ';';
+        const eliminar = 'delete from paciente where idpaciente= ' + idpaciente + ';';
         connection.query(eliminar, (err,result) => {
             if(err){
                 res.send(err)
@@ -181,7 +185,7 @@ router.get('/eliminar', (req, res) => {
 
 router.get('/buscar',(req,res)=>{
         const { idpaciente } = req.query;
-        const consultapaciente = 'select * from clientes where idpaciente = ' + idpaciente + ';';
+        const consultapaciente = 'select * from paciente where idpaciente = ' + idpaciente + ';';
         connection.query(consultapaciente, (err,result) => {
             if (err) {
                 return res.send(err);
@@ -207,8 +211,41 @@ router.get('/todainformacionpaciente', (req, res) => {
             result[0].ultimaConsulta = convert_date_good_looking(result[0].ultimaConsulta)
             result[0].fechaAltaPaciente = convert_date_good_looking(result[0].fechaAltaPaciente)
             result[0].enfTenidas = result[0].enfTenidas.split(',');
+
             res.json({
-                paciente: result
+                 paciente: {
+                    nombre: result[0].nombre, 
+                    apellidop: result[0].apellidop,
+                    apellidom: result[0].apellidom,
+                    fechanac: result[0].fechanac,
+                    sexo: result[0].sexo,
+                    estadocivil: result[0].estadocivil,
+                    telefono: result[0].telefono,
+                    correo: result[0].correo,
+                    nacionalidad: result[0].nacionalidad,
+                    observaciones: result[0].observaciones,
+                    idpaciente: result[0].idpaciente
+                  },
+                  direccion: {
+                    calle: result[0].calle,
+                    numext: result[0].numext,
+                    colonia: result[0].colonia,
+                    cp: result[0].cp,
+                    municipio: result[0].municipio,
+                    estado: result[0].estado,
+                  },
+                  prehistorial:{
+                    hospitalPorque: result[0].hospitalPorque,
+                    hospitalDonde: result[0].hospitalDonde,
+                    AtenMediPorque: result[0].AtenMediPorque,
+                    AtenMediDonde: result[0].AtenMediDonde,
+                    medicAler: result[0].medicAler,
+                    enfTenidas: result[0].enfTenidas,
+                    OtraEnfTenidas: result[0].OtraEnfTenidas,
+                    medTomadasActu: result[0].medTomadasActu,
+                    ultimaConsulta: result[0].ultimaConsulta,
+                    motivoConsulta: result[0].motivoConsulta
+                  }
             });
         }
     });

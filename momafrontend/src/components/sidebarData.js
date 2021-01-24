@@ -1,7 +1,7 @@
 import React from 'react';
 import * as BootstrapIcons from "react-icons/bs";
-import * as AiIcons from 'react-icons/ai';
-import * as IoIcons from 'react-icons/io';
+//import * as AiIcons from 'react-icons/ai';
+//import * as IoIcons from 'react-icons/io';
 import * as RiIcons from 'react-icons/ri'
 
 export const SidebarData = [
@@ -35,7 +35,7 @@ export const SidebarData = [
         iconOpened: <RiIcons.RiArrowUpSFill/>,
         subNav:[
             {
-                title: 'ver',
+                title: 'Agendar',
                 path: '/citas',
                 icon: <BootstrapIcons.BsPersonPlusFill/>
             },

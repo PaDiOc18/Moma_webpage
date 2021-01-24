@@ -12,9 +12,10 @@ class modificarpaciente extends Component {
 
   receive_state_from_child = (child_state) => {
     if(child_state.action === 'modify'){
+      
       axios({
         method: 'post',
-        url: 'http://localhost:4000/pacientes/agregar',
+        url: 'http://localhost:4000/pacientes/modificar',
         data: {
           paciente: child_state.paciente,
           direccion: child_state.direccion,
@@ -26,8 +27,10 @@ class modificarpaciente extends Component {
     else if(child_state.action === 'erase'){
       axios({
           method: 'delete',
-          url: 'http://localhost:4000/pacientes/eliminar?idpaciente=' + this.props.location.data.idpaciente,
-      }).then(response => {
+          url: 'http://localhost:4000/pacientes/eliminar',
+          data: {
+            idpaciente: child_state.paciente.idpaciente
+        }}).then(response => {
               alert(response.data);
           })
     }

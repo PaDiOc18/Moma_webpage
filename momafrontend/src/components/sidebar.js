@@ -29,7 +29,7 @@ const Sidebar = () => {
             </div>
 
             {/* Para la barra de la izquierda*/}
-            <div className='SidebarNav' sidebar={sidebar} style={{zIndex: 1}}>
+            <div className='SidebarNav' sidebar={sidebar.toString()} style={{zIndex: 1}}>
                 <div className='SidebarWrap'>
                     <Link className='NavIconOpen' to='#'>
                         <AiIcons.AiOutlineClose style={{margin: '1rem'}} onClick={showSidebar}/>

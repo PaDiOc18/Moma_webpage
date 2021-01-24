@@ -64,7 +64,7 @@ class buscarhistorialpaci extends Component {
 
     MandarEditarEliminar = (row) => {
         if(this.props.give_id !== undefined){
-            this.props.give_id(row.data.idpaciente)
+            this.props.give_id(row.data)
         }
         else{
             axios({
@@ -74,7 +74,7 @@ class buscarhistorialpaci extends Component {
                   this.props.history.push({
                     pathname: "/modificarpaciente",
                     data: {
-                        ...res.data.paciente[0]
+                        ...res.data
                     } 
                 });
             });
